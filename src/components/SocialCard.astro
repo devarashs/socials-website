@@ -1,0 +1,26 @@
+---
+/**
+ * One social profile as a full-card link. Visuals come from styles/card.css.
+ *
+ * `rel="me"` declares the target as the same person as this site, which is what
+ * identity-verification schemes (Mastodon, IndieAuth, some search features) read.
+ */
+import type { SocialProfile } from '../data/socials';
+import ExternalArrow from './ExternalArrow.astro';
+import PathIcon from './PathIcon.astro';
+
+interface Props {
+  profile: SocialProfile;
+}
+
+const { profile } = Astro.props;
+---
+
+<a class="card" href={profile.profileUrl} rel="me noopener" data-profile={profile.id}>
+  <span class="card__icon"><PathIcon path={profile.iconPath} /></span>
+  <span class="card__body">
+    <span class="card__title">{profile.platformName}</span>
+    <span class="card__handle">{profile.displayHandle}</span>
+  </span>
+  <ExternalArrow />
+</a>

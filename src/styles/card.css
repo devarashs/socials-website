@@ -1,0 +1,144 @@
+/*
+ * The card — the one interactive surface on the site.
+ *
+ * Global rather than scoped to a component because two components wear it:
+ * SocialCard is an <a class="card">, while ContactCard is a <div class="card">
+ * holding a link and a button (a button cannot nest inside a link).
+ *
+ * Hover feedback is built from two pseudo-elements whose `opacity` and
+ * `transform` change, so nothing repaints while the pointer moves:
+ *   ::before — neon border and inner glow, fades in
+ *   ::after  — a sheen that sweeps across once
+ */
+.card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 4.75rem;
+  padding: var(--space-3) var(--space-4);
+  /* Keeps the sheen inside the card. `clip` (unlike `hidden`) does not create
+     a scroll container, so the focus outline is still drawn outside. */
+  overflow: clip;
+  /* The resting outline is an inset shadow, not a `border`: `overflow: clip`
+     clips at the padding box, so anything laid over a real border area — like
+     the ::before neon outline below — would be cut off. With no border, the
+     padding box is the outer edge and the neon line covers this one exactly. */
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  border-radius: var(--radius-md);
+  /* Corner brackets, drawn as four tiny gradients so they cost no markup. */
+  background:
+    linear-gradient(var(--color-accent), var(--color-accent)) top left / 14px 2px,
+    linear-gradient(var(--color-accent), var(--color-accent)) top left / 2px 14px,
+    linear-gradient(var(--color-accent), var(--color-accent)) bottom right / 14px 2px,
+    linear-gradient(var(--color-accent), var(--color-accent)) bottom right / 2px 14px,
+    linear-gradient(135deg, var(--color-surface-raised), var(--color-surface));
+  background-repeat: no-repeat;
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: inherit;
+  box-shadow: inset 0 0 28px var(--color-accent-faint);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    var(--color-accent-faint) 50%,
+    transparent 65%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-2px);
+}
+
+.card:hover::before,
+.card:focus-within::before {
+  opacity: 1;
+}
+
+/* The sweep only transitions on the way in; leaving snaps it back unseen. */
+.card:hover::after,
+.card:focus-within::after {
+  transform: translateX(100%);
+  transition: transform 600ms var(--ease-out);
+}
+
+.card:active {
+  transform: translateY(0);
+}
+
+/* ── Parts ────────────────────────────────────────────────────────────── */
+
+.card__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-void);
+  color: var(--color-text);
+  transition: color var(--motion-base) var(--ease-out);
+}
+
+.card:hover .card__icon,
+.card:focus-within .card__icon {
+  color: var(--color-accent);
+}
+
+.card__body {
+  flex: 1;
+  /* Lets long text ellipsize instead of stretching the flex row. */
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.card__title {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.card__handle {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__arrow {
+  flex: none;
+  color: var(--color-text-muted);
+  transition:
+    transform var(--motion-base) var(--ease-out),
+    color var(--motion-base) var(--ease-out);
+}
+
+.card:hover .card__arrow,
+.card:focus-within .card__arrow {
+  color: var(--color-accent);
+  transform: translate(3px, -3px);
+}

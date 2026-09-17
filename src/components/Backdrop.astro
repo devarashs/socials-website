@@ -1,0 +1,119 @@
+---
+/**
+ * The fixed scene behind the page: night sky, a magenta horizon bloom, a neon
+ * perspective grid rolling toward the viewer, and CRT scanlines over the top.
+ *
+ * Entirely decorative and built from CSS gradients — no images, no canvas, no
+ * JavaScript. The only thing that moves is the grid plane's `transform`, which
+ * the compositor handles without repainting.
+ *
+ * Layer order, back to front: sky → bloom → grid → horizon fade → scanlines.
+ */
+---
+
+<div class="backdrop" aria-hidden="true">
+  <div class="backdrop__bloom"></div>
+  <div class="backdrop__floor">
+    <div class="backdrop__grid"></div>
+  </div>
+  <div class="backdrop__horizon-fade"></div>
+</div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<style>
+  .backdrop {
+    /* Where the floor meets the sky, measured from the top of the viewport. */
+    --horizon: 58%;
+    /* One grid square. The scroll animation travels exactly this far, which is
+       what makes the loop seamless. */
+    --grid-cell: 56px;
+
+    position: fixed;
+    inset: 0;
+    /* `lvh` so the scene does not jump when a phone's URL bar collapses. */
+    height: 100lvh;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(
+      to bottom,
+      var(--color-void) 0%,
+      var(--color-surface) var(--horizon),
+      var(--color-void) 100%
+    );
+  }
+
+  .backdrop__bloom {
+    position: absolute;
+    left: 50%;
+    top: var(--horizon);
+    width: min(120vw, 70rem);
+    aspect-ratio: 2.4;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, var(--color-glow-faint), transparent);
+  }
+
+  .backdrop__floor {
+    position: absolute;
+    top: var(--horizon);
+    bottom: 0;
+    /* Wider than the viewport: perspective narrows the far edge of the plane. */
+    left: -60%;
+    right: -60%;
+    perspective: 22rem;
+    perspective-origin: 50% 0;
+    overflow: hidden;
+  }
+
+  .backdrop__grid {
+    position: absolute;
+    /* Starts one cell above the horizon so the scroll never exposes a gap. */
+    top: calc(var(--grid-cell) * -1);
+    left: 0;
+    right: 0;
+    height: 300%;
+    transform-origin: 50% 0;
+    transform: rotateX(74deg);
+    background-image:
+      linear-gradient(to bottom, var(--color-glow-soft) 0 2px, transparent 2px),
+      linear-gradient(to right, var(--color-glow-soft) 0 2px, transparent 2px);
+    background-size: var(--grid-cell) var(--grid-cell);
+    background-position: center top;
+    animation: grid-roll 2.8s linear infinite;
+  }
+
+  /* translateY comes after rotateX, so it slides along the tilted plane. */
+  @keyframes grid-roll {
+    to {
+      transform: rotateX(74deg) translateY(var(--grid-cell));
+    }
+  }
+
+  /* Dissolves the far grid lines into the sky instead of a hard edge. A plain
+     overlay rather than a `mask`, which would force the animated grid to be
+     re-rasterized through the mask every frame. */
+  .backdrop__horizon-fade {
+    position: absolute;
+    top: var(--horizon);
+    left: 0;
+    right: 0;
+    height: 22%;
+    background: linear-gradient(to bottom, var(--color-surface), transparent);
+  }
+
+  /*
+   * Above the content, unlike the rest of the scene: CRT lines belong on the
+   * glass. Kept faint enough that body text contrast is not meaningfully
+   * reduced, and click-through so it never intercepts input.
+   */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.16) 0 1px,
+      transparent 1px 3px
+    );
+  }
+</style>

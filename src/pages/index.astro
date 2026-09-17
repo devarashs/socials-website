@@ -1,0 +1,155 @@
+---
+/**
+ * The whole site: a hero with the handle, then two groups of link cards.
+ *
+ * Entrance choreography: every `.rise-in` element staggers by its position
+ * among its siblings (styles/base.css), and each group sets `--rise-offset` so
+ * it queues behind the group above it. The last card lands about a second
+ * after first paint.
+ */
+import ContactCard from '../components/ContactCard.astro';
+import GlitchTitle from '../components/GlitchTitle.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import SocialCard from '../components/SocialCard.astro';
+import { channelProfiles, codeProfile, contactEmail, emailIconPath } from '../data/socials';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const HANDLE = 'machinearash';
+---
+
+<BaseLayout
+  title={`${HANDLE} // socials`}
+  description={`Every place to find ${HANDLE}: Twitch, Kick, YouTube, TikTok, Instagram, X, GitHub, and email.`}
+>
+  <main class="page">
+    <header class="hero">
+      <p class="hero__kicker rise-in">// social uplink</p>
+      <div class="rise-in">
+        <GlitchTitle text={HANDLE} />
+      </div>
+      <p class="hero__tagline rise-in">
+        One handle. Every channel. Pick a signal<span class="hero__cursor" aria-hidden="true">_</span>
+      </p>
+    </header>
+
+    <section class="link-group link-group--channels" aria-labelledby="channels-heading">
+      <SectionHeading id="channels-heading" index="01" label="Channels" />
+      <ul class="link-grid">
+        {
+          channelProfiles.map((profile) => (
+            <li class="rise-in">
+              <SocialCard profile={profile} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="link-group link-group--contact" aria-labelledby="contact-heading">
+      <SectionHeading id="contact-heading" index="02" label="Code + contact" />
+      <ul class="link-grid">
+        <li class="rise-in">
+          <SocialCard profile={codeProfile} />
+        </li>
+        <li class="rise-in">
+          <ContactCard emailAddress={contactEmail} iconPath={emailIconPath} />
+        </li>
+      </ul>
+    </section>
+
+    <footer class="page__footer">// end of line</footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .page {
+    width: min(100% - var(--page-gutter) * 2, var(--content-width));
+    margin-inline: auto;
+    padding-block: var(--space-8) var(--space-7);
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  /* ── Hero ───────────────────────────────────────────────────────────── */
+
+  .hero {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    text-align: center;
+  }
+
+  .hero__kicker {
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .hero__tagline {
+    /* Even line lengths when it wraps on a phone, instead of one orphan word. */
+    text-wrap: balance;
+    color: var(--color-text-muted);
+  }
+
+  /* The one looping animation in the foreground: a terminal cursor. Stepped
+     opacity, so it costs nothing. */
+  .hero__cursor {
+    color: var(--color-accent);
+    animation: cursor-blink 1.1s steps(1, end) infinite;
+  }
+
+  @keyframes cursor-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* ── Link groups ────────────────────────────────────────────────────── */
+
+  .link-group {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  /* Queue each group's entrance behind everything above it. */
+  .link-group--channels {
+    --rise-offset: 3;
+  }
+
+  .link-group--contact {
+    --rise-offset: 9;
+  }
+
+  .link-grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  /* Cards start one slot after their group's heading. */
+  .link-group--channels .link-grid {
+    --rise-offset: 4;
+  }
+
+  .link-group--contact .link-grid {
+    --rise-offset: 10;
+  }
+
+  /* Two columns as soon as two cards fit comfortably side by side. */
+  @media (min-width: 40rem) {
+    .link-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .page__footer {
+    text-align: center;
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+</style>

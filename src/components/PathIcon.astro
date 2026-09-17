@@ -1,0 +1,28 @@
+---
+/**
+ * Renders a single-path 24×24 icon (the simple-icons format) as inline SVG.
+ *
+ * Always decorative: every place it is used already has a text label beside it,
+ * so it is hidden from assistive tech rather than announced twice.
+ */
+interface Props {
+  /** `d` attribute of the icon path, drawn on a 24×24 grid. */
+  path: string;
+  /** Rendered width and height in CSS pixels. */
+  sizePx?: number;
+}
+
+const { path, sizePx = 22 } = Astro.props;
+---
+
+<svg
+  width={sizePx}
+  height={sizePx}
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  fill-rule="evenodd"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path d={path}></path>
+</svg>

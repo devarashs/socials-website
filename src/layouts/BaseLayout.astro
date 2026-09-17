@@ -1,0 +1,51 @@
+---
+/**
+ * Document shell: <head> metadata, fonts, global styles, and the backdrop.
+ *
+ * Fonts are self-hosted through Fontsource — no third-party font CDN, so no
+ * extra connection and no visitor IPs handed to anyone. Both ship with
+ * `font-display: swap` and unicode-range subsets, so a browser downloads only
+ * the Latin files this page actually uses.
+ */
+import '@fontsource-variable/orbitron/wght.css';
+import '@fontsource/share-tech-mono/400.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/card.css';
+import Backdrop from '../components/Backdrop.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+
+// Only known when SITE_URL was provided at build time (see astro.config.mjs).
+const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <!-- Matches --color-void; a meta tag cannot read a CSS custom property. -->
+    <meta name="theme-color" content="#0b0817" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <Backdrop />
+    <slot />
+  </body>
+</html>

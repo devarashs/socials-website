@@ -1,0 +1,75 @@
+/*
+ * Design tokens — the whole visual system in one place.
+ *
+ * Components never use a raw colour, size, or duration; they reference these.
+ * Changing the mood of the site means editing this file and nothing else.
+ */
+:root {
+  color-scheme: dark;
+
+  /* ── Colour ─────────────────────────────────────────────────────────────
+   * Surfaces are purple-tinted near-blacks, never #000, and text is a soft
+   * lavender-white, never #fff: full contrast on a neon page is glare.
+   *
+   * Two neons with two distinct jobs, so colour keeps its meaning:
+   *   accent (cyan)  — interactive: links, focus, hover. Nothing else.
+   *   glow (magenta) — atmosphere: backdrop, title bloom. Never clickable.
+   */
+  --color-void: #0b0817;
+  --color-surface: #130f26;
+  --color-surface-raised: #1b1536;
+  --color-text: #e8e5f7;
+  /* Muted text still clears 4.5:1 against every surface above. */
+  --color-text-muted: #a6a2c8;
+  --color-accent: #2de2e6;
+  --color-glow: #ff3cac;
+
+  --color-accent-faint: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 32%, transparent);
+  --color-glow-faint: color-mix(in srgb, var(--color-glow) 18%, transparent);
+  --color-glow-soft: color-mix(in srgb, var(--color-glow) 45%, transparent);
+  --color-border: color-mix(in srgb, var(--color-text-muted) 22%, transparent);
+
+  /* ── Type ───────────────────────────────────────────────────────────── */
+  --font-display: 'Orbitron Variable', 'Eurostile', 'Arial Black', sans-serif;
+  --font-mono: 'Share Tech Mono', ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  /* Fluid so the 12-letter handle fits one line from a 320px phone upward. */
+  --text-hero: clamp(1.5rem, 7.4vw, 3.75rem);
+
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.18em;
+
+  /* ── Space (4px base) ───────────────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  --page-gutter: var(--space-4);
+  --content-width: 46rem;
+
+  /* ── Shape ──────────────────────────────────────────────────────────────
+   * Deliberately tight radii: the retro-terminal look wants hard geometry.
+   */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* ── Motion ─────────────────────────────────────────────────────────────
+   * Everything animated on this site moves `transform` or `opacity` only, so
+   * it stays on the compositor. Entrances ease out: fast start, soft landing.
+   */
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-entrance: 460ms;
+  --motion-stagger: 55ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

@@ -1,0 +1,129 @@
+---
+/**
+ * The email card: a `mailto:` link plus a copy-to-clipboard button.
+ *
+ * Wears the shared `.card` look but is a <div>, not an <a>, because a button
+ * cannot be nested inside a link. The button is an enhancement — it ships
+ * `hidden` and scripts/copyButton.ts reveals it only where copying can work;
+ * the mailto link is the baseline and needs no JavaScript.
+ */
+import PathIcon from './PathIcon.astro';
+
+interface Props {
+  emailAddress: string;
+  /** `d` attribute of the 24×24 envelope icon. */
+  iconPath: string;
+}
+
+const { emailAddress, iconPath } = Astro.props;
+
+const COPY_STATUS_ID = 'contact-copy-status';
+---
+
+<div class="card contact-card" data-profile="email">
+  <a class="contact-card__link" href={`mailto:${emailAddress}`}>
+    <span class="card__icon"><PathIcon path={iconPath} /></span>
+    <span class="card__body">
+      <span class="card__title">Email</span>
+      <span class="card__handle">{emailAddress}</span>
+    </span>
+  </a>
+
+  <button
+    type="button"
+    class="copy-button"
+    data-copy-value={emailAddress}
+    data-copy-status-id={COPY_STATUS_ID}
+    hidden
+  >
+    <span data-copy-label>Copy</span>
+    <span class="visually-hidden"> email address</span>
+  </button>
+
+  <span id={COPY_STATUS_ID} class="visually-hidden" role="status"></span>
+</div>
+
+<script>
+  import { enableCopyButtons } from '../scripts/copyButton';
+
+  // navigator.clipboard is undefined outside secure contexts; the function
+  // treats that as "leave the button hidden".
+  enableCopyButtons(document, navigator.clipboard);
+</script>
+
+<style>
+  .contact-card__link {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    /* Stretch to the card's full height so the whole left side is clickable. */
+    align-self: stretch;
+  }
+
+  /*
+   * The card clips its overflow (for the sheen), which would also clip this
+   * link's focus ring. So the ring is drawn on the card itself instead.
+   */
+  .contact-card__link:focus-visible {
+    outline: none;
+  }
+
+  .contact-card:has(.contact-card__link:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  /*
+   * An address cut to "me@devarash…" is useless, so unlike the handles on the
+   * other cards this one never ellipsizes: on the narrowest phones the row
+   * tightens first, and if that is still not enough the address wraps.
+   */
+  .contact-card .card__handle {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 22.5rem) {
+    .contact-card,
+    .contact-card__link {
+      gap: var(--space-3);
+    }
+
+    /* One step down the type scale is what gets the address onto one line
+       beside the button at 320px. */
+    .contact-card .card__handle {
+      font-size: var(--text-xs);
+    }
+  }
+
+  .copy-button {
+    flex: none;
+    /* Wide enough for the longest label ("Copied"), so the button does not
+       resize — and squeeze the address — while feedback is showing. */
+    min-width: 4.25rem;
+    /* 44px minimum touch target. */
+    min-height: 2.75rem;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--color-accent-soft);
+    border-radius: var(--radius-sm);
+    background: var(--color-void);
+    color: var(--color-accent);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background-color var(--motion-fast) var(--ease-out),
+      transform var(--motion-fast) var(--ease-out);
+  }
+
+  .copy-button:hover {
+    background: var(--color-accent-faint);
+  }
+
+  .copy-button:active {
+    transform: scale(0.97);
+  }
+</style>

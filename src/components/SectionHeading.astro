@@ -1,0 +1,43 @@
+---
+/** Numbered terminal-style section label, e.g. `01 // Channels`. */
+interface Props {
+  /** Element id, so the enclosing <section> can point `aria-labelledby` at it. */
+  id: string;
+  /** Two-digit index shown before the label. */
+  index: string;
+  label: string;
+}
+
+const { id, index, label } = Astro.props;
+---
+
+<h2 id={id} class="section-heading rise-in">
+  <span class="section-heading__index" aria-hidden="true">{index} //</span>
+  {label}
+</h2>
+
+<style>
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .section-heading__index {
+    color: var(--color-accent);
+  }
+
+  /* Rule that runs out to the right edge. */
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--color-border), transparent);
+  }
+</style>

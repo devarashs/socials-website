@@ -1,0 +1,108 @@
+---
+/**
+ * The page's <h1>, with an RGB-split glitch that fires once on load and again
+ * on hover.
+ *
+ * How it works: two extra copies of the text sit exactly on top of the real
+ * one, tinted cyan and magenta, each permanently clipped to a horizontal band.
+ * They are invisible at rest. The glitch is nothing more than those bands
+ * jumping sideways for a few frames — `transform` and `opacity` only, with a
+ * stepped timing function so they snap instead of glide.
+ *
+ * The copies are real elements, not `content: attr()` pseudo-elements, so they
+ * can carry `aria-hidden` and the heading is announced once.
+ */
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<h1 class="glitch-title">
+  <span class="glitch-title__text">{text}</span>
+  <span class="glitch-title__slice glitch-title__slice--upper" aria-hidden="true">{text}</span>
+  <span class="glitch-title__slice glitch-title__slice--lower" aria-hidden="true">{text}</span>
+</h1>
+
+<style>
+  .glitch-title {
+    position: relative;
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-hero);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    /* Never wrap: a broken handle reads as two words. The fluid size in
+       tokens.css is what makes this safe down to 320px. */
+    white-space: nowrap;
+    text-shadow:
+      0 0 22px var(--color-glow-soft),
+      0 0 2px var(--color-glow);
+  }
+
+  .glitch-title__slice {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    text-shadow: none;
+    pointer-events: none;
+    /* Longhands on purpose. The name is set per slice below, and a nameless
+       `animation:` shorthand is collapsed to `animation: none` by the CSS
+       minifier, which silently zeroes the duration in production builds.
+       No fill mode: before and after the burst the slice falls back to the
+       `opacity: 0` above, so it cannot be left visible mid-delay. */
+    animation-duration: 520ms;
+    animation-timing-function: steps(1, end);
+    animation-delay: 700ms;
+    animation-iteration-count: 1;
+  }
+
+  .glitch-title__slice--upper {
+    color: var(--color-accent);
+    clip-path: inset(12% 0 56% 0);
+    animation-name: glitch-jolt-left;
+  }
+
+  .glitch-title__slice--lower {
+    color: var(--color-glow);
+    clip-path: inset(58% 0 10% 0);
+    animation-name: glitch-jolt-right;
+  }
+
+  /*
+   * A CSS animation only restarts when its name changes, so hover swaps the two
+   * keyframe sets between the slices. That is the whole replay mechanism.
+   */
+  .glitch-title:hover .glitch-title__slice {
+    animation-delay: 0ms;
+  }
+
+  .glitch-title:hover .glitch-title__slice--upper {
+    animation-name: glitch-jolt-right;
+  }
+
+  .glitch-title:hover .glitch-title__slice--lower {
+    animation-name: glitch-jolt-left;
+  }
+
+  @keyframes glitch-jolt-left {
+    0% { opacity: 0.9; transform: translateX(-8px); }
+    18% { transform: translateX(5px); }
+    36% { opacity: 0; }
+    54% { opacity: 0.9; transform: translateX(-4px); }
+    72% { transform: translateX(7px); }
+    90% { opacity: 0; transform: none; }
+  }
+
+  @keyframes glitch-jolt-right {
+    0% { opacity: 0; }
+    12% { opacity: 0.9; transform: translateX(7px); }
+    30% { transform: translateX(-6px); }
+    48% { opacity: 0; }
+    66% { opacity: 0.9; transform: translateX(4px); }
+    84% { opacity: 0; transform: none; }
+  }
+</style>

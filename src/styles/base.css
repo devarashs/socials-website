@@ -1,0 +1,115 @@
+/* Reset and page-level defaults. Component looks live with their components. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* An author `display` would otherwise beat the UA rule for [hidden]. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--color-void);
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* One focus style for every interactive element on the site. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--color-glow-soft);
+  color: var(--color-text);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/*
+ * Shared entrance: fade up a few pixels and settle. Pure CSS on purpose — if
+ * scripts fail or are blocked, nothing is left stuck at opacity 0.
+ *
+ * There is no `to` keyframe and the fill mode is `backwards`, not `both`: the
+ * element must be hidden during its stagger delay, but once the animation ends
+ * it has to let go of `transform`, or it would override hover transforms forever.
+ */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.rise-in {
+  animation: rise-in var(--motion-entrance) var(--ease-out) backwards;
+  /* --rise-offset is inherited: a container sets it to queue its children
+     after an earlier group instead of animating alongside it. */
+  animation-delay: calc(
+    var(--motion-stagger) * (var(--rise-order, 0) + var(--rise-offset, 0))
+  );
+}
+
+/*
+ * Stagger by position rather than an inline `style="--rise-order: n"`: the CSP
+ * is hash-based with no 'unsafe-inline', which blocks style attributes.
+ */
+.rise-in:nth-child(2) { --rise-order: 1; }
+.rise-in:nth-child(3) { --rise-order: 2; }
+.rise-in:nth-child(4) { --rise-order: 3; }
+.rise-in:nth-child(5) { --rise-order: 4; }
+.rise-in:nth-child(6) { --rise-order: 5; }
+
+/*
+ * Reduced motion is a user asking for stillness: drop every animation and
+ * transition site-wide instead of trusting each component to remember.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
