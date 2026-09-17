@@ -4,6 +4,11 @@
  *
  * `rel="me"` declares the target as the same person as this site, which is what
  * identity-verification schemes (Mastodon, IndieAuth, some search features) read.
+ *
+ * Opens in a new tab so the hub stays open while a visitor works through several
+ * profiles. `noopener` stops the opened page from reaching back through
+ * `window.opener`, and the hidden "(opens in new tab)" text tells screen-reader
+ * users what sighted users get from the arrow icon.
  */
 import type { SocialProfile } from '../data/socials';
 import ExternalArrow from './ExternalArrow.astro';
@@ -11,16 +16,30 @@ import PathIcon from './PathIcon.astro';
 
 interface Props {
   profile: SocialProfile;
+  /**
+   * Whether the link target is this person's own profile, which earns it
+   * `rel="me"`. Pass `false` for links that merely belong on the page, such as
+   * a third-party donation page.
+   */
+  declaresIdentity?: boolean;
 }
 
-const { profile } = Astro.props;
+const { profile, declaresIdentity = true } = Astro.props;
 ---
 
-<a class="card" href={profile.profileUrl} rel="me noopener" data-profile={profile.id}>
+<a
+  class="card"
+  href={profile.profileUrl}
+  target="_blank"
+  rel={declaresIdentity ? 'me noopener' : 'noopener'}
+  data-profile={profile.id}
+  data-hover-note
+>
   <span class="card__icon"><PathIcon path={profile.iconPath} /></span>
   <span class="card__body">
     <span class="card__title">{profile.platformName}</span>
     <span class="card__handle">{profile.displayHandle}</span>
+    <span class="visually-hidden"> (opens in new tab)</span>
   </span>
   <ExternalArrow />
 </a>

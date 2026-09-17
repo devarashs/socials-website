@@ -20,7 +20,7 @@ const { emailAddress, iconPath } = Astro.props;
 const COPY_STATUS_ID = 'contact-copy-status';
 ---
 
-<div class="card contact-card" data-profile="email">
+<div class="card contact-card" data-profile="email" data-hover-note>
   <a class="contact-card__link" href={`mailto:${emailAddress}`}>
     <span class="card__icon"><PathIcon path={iconPath} /></span>
     <span class="card__body">

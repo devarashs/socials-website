@@ -1,6 +1,6 @@
 ---
 /**
- * The whole site: a hero with the handle, then two groups of link cards.
+ * The whole site: a hero with the handle, then three groups of link cards.
  *
  * Entrance choreography: every `.rise-in` element staggers by its position
  * among its siblings (styles/base.css), and each group sets `--rise-offset` so
@@ -11,7 +11,14 @@ import ContactCard from '../components/ContactCard.astro';
 import GlitchTitle from '../components/GlitchTitle.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import SocialCard from '../components/SocialCard.astro';
-import { channelProfiles, codeProfile, contactEmail, emailIconPath } from '../data/socials';
+import SoundToggle from '../components/SoundToggle.astro';
+import {
+  channelProfiles,
+  codeProfile,
+  contactEmail,
+  donationLink,
+  emailIconPath,
+} from '../data/socials';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const HANDLE = 'machinearash';
@@ -21,6 +28,8 @@ const HANDLE = 'machinearash';
   title={`${HANDLE} // socials`}
   description={`Every place to find ${HANDLE}: Twitch, Kick, YouTube, TikTok, Instagram, X, GitHub, and email.`}
 >
+  <SoundToggle />
+
   <main class="page">
     <header class="hero">
       <p class="hero__kicker rise-in">// social uplink</p>
@@ -53,6 +62,15 @@ const HANDLE = 'machinearash';
         </li>
         <li class="rise-in">
           <ContactCard emailAddress={contactEmail} iconPath={emailIconPath} />
+        </li>
+      </ul>
+    </section>
+
+    <section class="link-group link-group--support" aria-labelledby="support-heading">
+      <SectionHeading id="support-heading" index="03" label="Support" />
+      <ul class="link-grid">
+        <li class="link-grid__wide rise-in">
+          <SocialCard profile={donationLink} declaresIdentity={false} />
         </li>
       </ul>
     </section>
@@ -121,6 +139,10 @@ const HANDLE = 'machinearash';
     --rise-offset: 9;
   }
 
+  .link-group--support {
+    --rise-offset: 12;
+  }
+
   .link-grid {
     margin: 0;
     padding: 0;
@@ -138,10 +160,19 @@ const HANDLE = 'machinearash';
     --rise-offset: 10;
   }
 
+  .link-group--support .link-grid {
+    --rise-offset: 13;
+  }
+
   /* Two columns as soon as two cards fit comfortably side by side. */
   @media (min-width: 40rem) {
     .link-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* A card alone in its group spans the row rather than leaving a hole. */
+    .link-grid__wide {
+      grid-column: 1 / -1;
     }
   }
 

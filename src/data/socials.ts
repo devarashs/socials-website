@@ -9,6 +9,7 @@
  * SVG path strings used below end up in the HTML, and no JavaScript ships.
  */
 import {
+  siBitcoin,
   siGithub,
   siInstagram,
   siKick,
@@ -91,6 +92,22 @@ export const codeProfile: SocialProfile = {
   displayHandle: `@${GITHUB_HANDLE}`,
   profileUrl: `https://github.com/${GITHUB_HANDLE}`,
   iconPath: siGithub.path,
+};
+
+/**
+ * Crypto donation page, hosted by NOWPayments.
+ *
+ * Shaped like a profile so it can wear the same card, but it is not one: render
+ * it with `declaresIdentity={false}` so it does not get `rel="me"`. The URL is
+ * where people send money — it is pinned literally in the tests, so a change
+ * here must be a deliberate change there too.
+ */
+export const donationLink: SocialProfile = {
+  id: 'donate',
+  platformName: 'Donate crypto',
+  displayHandle: 'via NOWPayments',
+  profileUrl: `https://nowpayments.io/donation/${STREAMER_HANDLE}`,
+  iconPath: siBitcoin.path,
 };
 
 /** Public contact address. Published deliberately; it is meant to be found. */

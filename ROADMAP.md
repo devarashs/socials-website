@@ -39,6 +39,18 @@ Stated so they can be corrected; none of them changes the task list if wrong.
 - [x] Verified in a real browser at phone and desktop widths
 - [x] README documents local dev, editing links, and the Cloudflare Pages settings
 
+## Phase 4 — Requested after first review
+
+- [x] Clicking a social opens the profile in a new tab; the hub stays open
+      (`noopener`; the mailto link deliberately stays in the current tab)
+- [x] Visitors can reach the crypto donation page (NOWPayments) from a Support section
+      Assumption: it carries no `rel="me"` — it is a payment processor's page, not a profile.
+- [x] Hovering or keyboard-focusing a card plays a retro note, with a remembered mute toggle
+      Synthesized (Web Audio square wave), so no audio files. Browsers only allow
+      sound after the visitor's first click or key press; hovers before that are silent.
+      Verified by instrumenting Web Audio in Chrome (timing, pitch, mute), not by ear:
+      whether it *sounds* good is still to be judged by a human with speakers.
+
 ## Later — noticed, not agreed
 
 Not in scope for the first version. Listed so they are not lost.

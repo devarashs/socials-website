@@ -27,7 +27,11 @@ const EXPECTED_LINKS = [
   'https://x.com/machinearash',
   'https://github.com/devarashs',
   'mailto:me@devarash.icu',
+  'https://nowpayments.io/donation/machinearash',
 ];
+
+/** The donation page belongs to a payment processor, so it must not claim rel="me". */
+const DONATION_HOST = 'nowpayments.io';
 
 for (const expectedHref of EXPECTED_LINKS) {
   test(`links to ${expectedHref} exactly once`, () => {
@@ -40,12 +44,31 @@ test('contains no links beyond the expected set', () => {
   assert.deepEqual([...anchorHrefs].sort(), [...EXPECTED_LINKS].sort());
 });
 
-test('every external profile link declares rel="me"', () => {
+test('every own-profile link declares rel="me", and the donation link does not', () => {
   const externalAnchors = builtHtml.match(/<a\b[^>]*\bhref="https:[^>]*>/g) ?? [];
-  assert.equal(externalAnchors.length, 7);
+  assert.equal(externalAnchors.length, 8);
   for (const anchorTag of externalAnchors) {
-    assert.match(anchorTag, /\brel="[^"]*\bme\b[^"]*"/, anchorTag);
+    if (anchorTag.includes(DONATION_HOST)) {
+      assert.doesNotMatch(anchorTag, /\brel="[^"]*\bme\b[^"]*"/, anchorTag);
+    } else {
+      assert.match(anchorTag, /\brel="[^"]*\bme\b[^"]*"/, anchorTag);
+    }
   }
+});
+
+test('profile links open in a new tab without exposing window.opener', () => {
+  const externalAnchors = builtHtml.match(/<a\b[^>]*\bhref="https:[^>]*>/g) ?? [];
+  assert.equal(externalAnchors.length, 8);
+  for (const anchorTag of externalAnchors) {
+    assert.match(anchorTag, /\btarget="_blank"/, anchorTag);
+    assert.match(anchorTag, /\brel="[^"]*\bnoopener\b[^"]*"/, anchorTag);
+  }
+});
+
+test('the mailto link stays in the current tab', () => {
+  const mailtoAnchor = builtHtml.match(/<a\b[^>]*\bhref="mailto:[^>]*>/);
+  assert.ok(mailtoAnchor, 'mailto link not found');
+  assert.doesNotMatch(mailtoAnchor[0], /\btarget=/);
 });
 
 test('has exactly one <h1>, and it is the handle', () => {
@@ -85,4 +108,16 @@ test('minifier has not disabled the glitch title animation', () => {
   assert.ok(sliceRule, 'glitch slice rule not found in built CSS');
   assert.doesNotMatch(sliceRule[0], /animation:none/);
   assert.match(sliceRule[0], /animation-duration:\.52s/);
+});
+
+test('every card is wired to play a hover note', () => {
+  const noteHooks = builtHtml.match(/<(?:a|div) [^>]*data-hover-note[^>]*>/g) ?? [];
+  // 6 channels + GitHub + email + donation.
+  assert.equal(noteHooks.length, 9);
+});
+
+test('the sound toggle ships hidden, so it is never a dead control without JavaScript', () => {
+  const toggleTag = builtHtml.match(/<button [^>]*data-sound-toggle[^>]*>/);
+  assert.ok(toggleTag, 'sound toggle not found');
+  assert.match(toggleTag[0], / hidden[ >=]/);
 });

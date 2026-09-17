@@ -40,6 +40,7 @@ new platform. Only the path strings used end up in the HTML.
 | Card look and hover feedback | [src/styles/card.css](src/styles/card.css) |
 | Grid floor, horizon glow, scanlines | [src/components/Backdrop.astro](src/components/Backdrop.astro) |
 | Title glitch | [src/components/GlitchTitle.astro](src/components/GlitchTitle.astro) |
+| Hover notes: scale, volume, note length | [src/scripts/hoverNotes.ts](src/scripts/hoverNotes.ts) |
 
 Two rules the existing code follows, worth keeping:
 
@@ -49,6 +50,19 @@ Two rules the existing code follows, worth keeping:
   so the browser would block them. A test enforces this.
 
 All motion switches off under `prefers-reduced-motion`.
+
+### Hover notes
+
+Each card plays a short square-wave bleep on hover or keyboard focus, one note of a
+pentatonic scale per card. Two things that look like bugs but are not:
+
+- **Nothing plays until the visitor has clicked or pressed a key once.** Browser
+  autoplay policy forbids audio before a user gesture, and hovering is not one.
+- **Touch devices stay silent.** They have no hover; a tap is the visitor leaving.
+
+The SFX toggle in the top-right corner mutes them and remembers the choice in
+`localStorage`. Pitch and timing are tuned by the constants at the top of
+[src/scripts/hoverNotes.ts](src/scripts/hoverNotes.ts) — `PEAK_GAIN` is the volume.
 
 ## Deploy to Cloudflare Pages
 
