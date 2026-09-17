@@ -9,15 +9,17 @@
  */
 import ContactCard from '../components/ContactCard.astro';
 import GlitchTitle from '../components/GlitchTitle.astro';
+import ProfilePicture from '../components/ProfilePicture.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import SocialCard from '../components/SocialCard.astro';
 import SoundToggle from '../components/SoundToggle.astro';
 import {
   channelProfiles,
-  codeProfile,
   contactEmail,
+  discordInvite,
   donationLink,
   emailIconPath,
+  professionalProfiles,
 } from '../data/socials';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
@@ -26,12 +28,15 @@ const HANDLE = 'machinearash';
 
 <BaseLayout
   title={`${HANDLE} // socials`}
-  description={`Every place to find ${HANDLE}: Twitch, Kick, YouTube, TikTok, Instagram, X, GitHub, and email.`}
+  description={`Every place to find ${HANDLE}: Twitch, Kick, YouTube, TikTok, Instagram, X, Discord, GitHub, LinkedIn, and email.`}
 >
   <SoundToggle />
 
   <main class="page">
     <header class="hero">
+      <div class="hero__picture rise-in">
+        <ProfilePicture alt={`Neon synthwave portrait of ${HANDLE} against a city skyline`} />
+      </div>
       <p class="hero__kicker rise-in">// social uplink</p>
       <div class="rise-in">
         <GlitchTitle text={HANDLE} />
@@ -57,19 +62,26 @@ const HANDLE = 'machinearash';
     <section class="link-group link-group--contact" aria-labelledby="contact-heading">
       <SectionHeading id="contact-heading" index="02" label="Code + contact" />
       <ul class="link-grid">
-        <li class="rise-in">
-          <SocialCard profile={codeProfile} />
-        </li>
-        <li class="rise-in">
+        {
+          professionalProfiles.map((profile) => (
+            <li class="rise-in">
+              <SocialCard profile={profile} />
+            </li>
+          ))
+        }
+        <li class="link-grid__wide rise-in">
           <ContactCard emailAddress={contactEmail} iconPath={emailIconPath} />
         </li>
       </ul>
     </section>
 
     <section class="link-group link-group--support" aria-labelledby="support-heading">
-      <SectionHeading id="support-heading" index="03" label="Support" />
+      <SectionHeading id="support-heading" index="03" label="Community + support" />
       <ul class="link-grid">
-        <li class="link-grid__wide rise-in">
+        <li class="rise-in">
+          <SocialCard profile={discordInvite} declaresIdentity={false} />
+        </li>
+        <li class="rise-in">
           <SocialCard profile={donationLink} declaresIdentity={false} />
         </li>
       </ul>
@@ -95,6 +107,11 @@ const HANDLE = 'machinearash';
     justify-items: center;
     gap: var(--space-3);
     text-align: center;
+  }
+
+  /* A little more air under the picture than between the text lines. */
+  .hero__picture {
+    margin-bottom: var(--space-3);
   }
 
   .hero__kicker {
@@ -132,15 +149,15 @@ const HANDLE = 'machinearash';
 
   /* Queue each group's entrance behind everything above it. */
   .link-group--channels {
-    --rise-offset: 3;
+    --rise-offset: 4;
   }
 
   .link-group--contact {
-    --rise-offset: 9;
+    --rise-offset: 10;
   }
 
   .link-group--support {
-    --rise-offset: 12;
+    --rise-offset: 14;
   }
 
   .link-grid {
@@ -153,15 +170,15 @@ const HANDLE = 'machinearash';
 
   /* Cards start one slot after their group's heading. */
   .link-group--channels .link-grid {
-    --rise-offset: 4;
+    --rise-offset: 5;
   }
 
   .link-group--contact .link-grid {
-    --rise-offset: 10;
+    --rise-offset: 11;
   }
 
   .link-group--support .link-grid {
-    --rise-offset: 13;
+    --rise-offset: 15;
   }
 
   /* Two columns as soon as two cards fit comfortably side by side. */
@@ -170,7 +187,7 @@ const HANDLE = 'machinearash';
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    /* A card alone in its group spans the row rather than leaving a hole. */
+    /* A card left over on its own row spans it rather than leaving a hole. */
     .link-grid__wide {
       grid-column: 1 / -1;
     }

@@ -10,8 +10,10 @@
  * Run with `npm test`, which builds first.
  */
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { join } from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 const builtHtml = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
 
@@ -26,12 +28,20 @@ const EXPECTED_LINKS = [
   'https://www.instagram.com/machinearash',
   'https://x.com/machinearash',
   'https://github.com/devarashs',
+  'https://www.linkedin.com/in/arashsalehkhah/',
   'mailto:me@devarash.icu',
+  'https://discord.gg/jxpvnvPg9z',
   'https://nowpayments.io/donation/machinearash',
 ];
 
-/** The donation page belongs to a payment processor, so it must not claim rel="me". */
-const DONATION_HOST = 'nowpayments.io';
+/** How many of the links above leave the site (everything except the mailto). */
+const EXTERNAL_LINK_COUNT = EXPECTED_LINKS.filter((href) => href.startsWith('https:')).length;
+
+/**
+ * Links that are on the page but are not this person's own profile — a payment
+ * processor's page and a community invite — so they must not claim rel="me".
+ */
+const NON_IDENTITY_HOSTS = ['nowpayments.io', 'discord.gg'];
 
 for (const expectedHref of EXPECTED_LINKS) {
   test(`links to ${expectedHref} exactly once`, () => {
@@ -44,11 +54,11 @@ test('contains no links beyond the expected set', () => {
   assert.deepEqual([...anchorHrefs].sort(), [...EXPECTED_LINKS].sort());
 });
 
-test('every own-profile link declares rel="me", and the donation link does not', () => {
+test('every own-profile link declares rel="me", and non-identity links do not', () => {
   const externalAnchors = builtHtml.match(/<a\b[^>]*\bhref="https:[^>]*>/g) ?? [];
-  assert.equal(externalAnchors.length, 8);
+  assert.equal(externalAnchors.length, EXTERNAL_LINK_COUNT);
   for (const anchorTag of externalAnchors) {
-    if (anchorTag.includes(DONATION_HOST)) {
+    if (NON_IDENTITY_HOSTS.some((host) => anchorTag.includes(`//${host}/`))) {
       assert.doesNotMatch(anchorTag, /\brel="[^"]*\bme\b[^"]*"/, anchorTag);
     } else {
       assert.match(anchorTag, /\brel="[^"]*\bme\b[^"]*"/, anchorTag);
@@ -58,7 +68,7 @@ test('every own-profile link declares rel="me", and the donation link does not',
 
 test('profile links open in a new tab without exposing window.opener', () => {
   const externalAnchors = builtHtml.match(/<a\b[^>]*\bhref="https:[^>]*>/g) ?? [];
-  assert.equal(externalAnchors.length, 8);
+  assert.equal(externalAnchors.length, EXTERNAL_LINK_COUNT);
   for (const anchorTag of externalAnchors) {
     assert.match(anchorTag, /\btarget="_blank"/, anchorTag);
     assert.match(anchorTag, /\brel="[^"]*\bnoopener\b[^"]*"/, anchorTag);
@@ -112,12 +122,35 @@ test('minifier has not disabled the glitch title animation', () => {
 
 test('every card is wired to play a hover note', () => {
   const noteHooks = builtHtml.match(/<(?:a|div) [^>]*data-hover-note[^>]*>/g) ?? [];
-  // 6 channels + GitHub + email + donation.
-  assert.equal(noteHooks.length, 9);
+  // One per link, the mailto card included.
+  assert.equal(noteHooks.length, EXPECTED_LINKS.length);
 });
 
 test('the sound toggle ships hidden, so it is never a dead control without JavaScript', () => {
   const toggleTag = builtHtml.match(/<button [^>]*data-sound-toggle[^>]*>/);
   assert.ok(toggleTag, 'sound toggle not found');
   assert.match(toggleTag[0], / hidden[ >=]/);
+});
+
+test('the profile picture reserves its box and has alt text', () => {
+  const imageTag = builtHtml.match(/<img [^>]*profile[^>]*>/);
+  assert.ok(imageTag, 'profile <img> not found');
+  assert.match(imageTag[0], / width="144"/);
+  assert.match(imageTag[0], / height="144"/);
+  assert.match(imageTag[0], / alt="[^"]{10,}"/);
+  assert.match(imageTag[0], / srcset="[^"]*288w[^"]*432w/);
+});
+
+/*
+ * Regression guard for weight. The profile picture's source is a 3 MB PNG; if it
+ * is ever dropped back into public/ (or any other large file is), it ships as-is.
+ */
+test('no file in the build is larger than 100 KB', async () => {
+  const distPath = fileURLToPath(new URL('../dist/', import.meta.url));
+  const oversized = [];
+  for (const entry of await readdir(distPath, { recursive: true })) {
+    const fileStat = await stat(join(distPath, entry));
+    if (fileStat.isFile() && fileStat.size > 100 * 1024) oversized.push(`${entry} (${fileStat.size} bytes)`);
+  }
+  assert.deepEqual(oversized, []);
 });

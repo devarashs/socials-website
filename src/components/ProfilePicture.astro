@@ -1,0 +1,72 @@
+---
+/**
+ * The round profile picture at the top of the hero.
+ *
+ * The source is a 1254px, 3 MB PNG; it is shown at 144px. It lives in
+ * src/assets (not public/, which ships files untouched) so Astro can emit small
+ * WebP variants at build time — 1×, 2× and 3× the display size — and the browser
+ * picks one from `srcset`. It is almost certainly the page's LCP element, hence
+ * eager loading with high fetch priority, and the intrinsic width/height Astro
+ * writes onto the <img> reserve its box so nothing shifts when it arrives.
+ */
+import { Image } from 'astro:assets';
+import profileImage from '../assets/profile.png';
+
+interface Props {
+  /** Alt text. Describe the picture; the name itself is in the <h1> below it. */
+  alt: string;
+}
+
+const { alt } = Astro.props;
+
+/** Rendered diameter in CSS pixels. Keep in sync with `--picture-size` below. */
+const DISPLAY_SIZE_PX = 144;
+---
+
+<div class="profile-picture">
+  <Image
+    class="profile-picture__image"
+    src={profileImage}
+    alt={alt}
+    width={DISPLAY_SIZE_PX}
+    height={DISPLAY_SIZE_PX}
+    widths={[DISPLAY_SIZE_PX, DISPLAY_SIZE_PX * 2, DISPLAY_SIZE_PX * 3]}
+    sizes={`${DISPLAY_SIZE_PX}px`}
+    format="webp"
+    quality={82}
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+  />
+</div>
+
+<style>
+  .profile-picture {
+    --picture-size: 9rem;
+
+    width: var(--picture-size);
+    height: var(--picture-size);
+    border-radius: 50%;
+    overflow: hidden;
+    /* Shown until the image decodes, and behind it if it ever fails to load. */
+    background: var(--color-surface-raised);
+    /* Static bloom in the two neons. Not animated, so it costs one paint.
+       No outline of its own: the artwork's ring is the border (see below). */
+    box-shadow:
+      0 0 24px var(--color-glow-soft),
+      0 0 64px var(--color-accent-faint);
+  }
+
+  .profile-picture__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /*
+     * The artwork has its own neon ring drawn a little inside the square's
+     * edges. Zooming in makes that ring land on the circular crop, so it reads
+     * as the picture's border instead of floating inside a dark margin.
+     */
+    transform: scale(1.055);
+  }
+</style>

@@ -25,7 +25,9 @@
  * octave: from C5 the last cards would chirp at around 3 kHz, where a square
  * wave turns from "retro" to piercing.
  */
-const NOTE_FREQUENCIES_HZ = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99];
+const NOTE_FREQUENCIES_HZ = [
+  261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5,
+];
 
 /** Square waves are harsh; this keeps the bleep well below speech volume. */
 const PEAK_GAIN = 0.045;

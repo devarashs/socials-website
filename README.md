@@ -1,8 +1,9 @@
 # machinearash // socials
 
 One-page socials hub with a retro cyberpunk mood. Static [Astro](https://astro.build)
-site — no UI framework, no adapter, no third-party requests. The built page is about
-7.5 KB of gzipped HTML (CSS and the one script inlined) plus two self-hosted fonts.
+site — no UI framework, no adapter, no third-party requests. A first visit downloads
+roughly 50 KB: about 10 KB of gzipped HTML (CSS and scripts inlined), a 6 KB profile
+picture, and two self-hosted fonts.
 
 ## Develop
 
@@ -40,6 +41,7 @@ new platform. Only the path strings used end up in the HTML.
 | Card look and hover feedback | [src/styles/card.css](src/styles/card.css) |
 | Grid floor, horizon glow, scanlines | [src/components/Backdrop.astro](src/components/Backdrop.astro) |
 | Title glitch | [src/components/GlitchTitle.astro](src/components/GlitchTitle.astro) |
+| Profile picture: size, glow, crop zoom | [src/components/ProfilePicture.astro](src/components/ProfilePicture.astro) |
 | Hover notes: scale, volume, note length | [src/scripts/hoverNotes.ts](src/scripts/hoverNotes.ts) |
 
 Two rules the existing code follows, worth keeping:
@@ -50,6 +52,18 @@ Two rules the existing code follows, worth keeping:
   so the browser would block them. A test enforces this.
 
 All motion switches off under `prefers-reduced-motion`.
+
+### Profile picture
+
+To change it, replace [src/assets/profile.png](src/assets/profile.png) with another
+square image, any size. **Do not put it in `public/`** — files there ship exactly as
+they are, and the current source is 3 MB. From `src/assets/` Astro generates small WebP
+versions at build time (about 6 KB on a normal screen). A test fails if any file in the
+build is over 100 KB.
+
+The current artwork has its own neon ring, and `transform: scale(1.055)` in the
+component zooms in just enough for that ring to land on the round crop. A different
+picture will probably want that set back to `1`.
 
 ### Hover notes
 

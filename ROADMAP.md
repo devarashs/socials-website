@@ -51,6 +51,17 @@ Stated so they can be corrected; none of them changes the task list if wrong.
       Verified by instrumenting Web Audio in Chrome (timing, pitch, mute), not by ear:
       whether it *sounds* good is still to be judged by a human with speakers.
 
+- [x] Visitors can join the Discord server and find the LinkedIn profile
+      LinkedIn sits beside GitHub (`rel="me"`); Discord sits beside the donation card
+      (no `rel="me"` — an invite is a community, not a profile).
+      Open risk: Discord invites expire after 7 days unless created as "Never". Not
+      checked whether `jxpvnvPg9z` is permanent.
+
+- [x] A round profile picture sits at the top of the page
+      Source moved from `public/` to `src/assets/`: `public/` ships files untouched, and
+      the original is a 3 MB PNG. Astro now emits 6 / 19 / 39 KB WebP variants instead.
+      A test fails the build if any shipped file exceeds 100 KB.
+
 ## Later — noticed, not agreed
 
 Not in scope for the first version. Listed so they are not lost.
