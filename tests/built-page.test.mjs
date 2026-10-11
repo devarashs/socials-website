@@ -31,17 +31,17 @@ const EXPECTED_LINKS = [
   'https://www.linkedin.com/in/arashsalehkhah/',
   'mailto:me@devarash.icu',
   'https://discord.gg/jxpvnvPg9z',
-  'https://nowpayments.io/donation/machinearash',
+  'https://dono.devarash.icu/',
 ];
 
 /** How many of the links above leave the site (everything except the mailto). */
 const EXTERNAL_LINK_COUNT = EXPECTED_LINKS.filter((href) => href.startsWith('https:')).length;
 
 /**
- * Links that are on the page but are not this person's own profile — a payment
- * processor's page and a community invite — so they must not claim rel="me".
+ * Links that are on the page but are not this person's own profile — the
+ * donation page and a community invite — so they must not claim rel="me".
  */
-const NON_IDENTITY_HOSTS = ['nowpayments.io', 'discord.gg'];
+const NON_IDENTITY_HOSTS = ['dono.devarash.icu', 'discord.gg'];
 
 for (const expectedHref of EXPECTED_LINKS) {
   test(`links to ${expectedHref} exactly once`, () => {

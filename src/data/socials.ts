@@ -134,7 +134,8 @@ export const discordInvite: SocialProfile = {
 };
 
 /**
- * Crypto donation page, hosted by NOWPayments.
+ * Crypto donation page: the self-hosted crypto-dono service, which takes the
+ * payment through NOWPayments and shows the donation on stream.
  *
  * Shaped like a profile so it can wear the same card, but it is not one: render
  * it with `declaresIdentity={false}` so it does not get `rel="me"`. The URL is
@@ -144,8 +145,8 @@ export const discordInvite: SocialProfile = {
 export const donationLink: SocialProfile = {
   id: 'donate',
   platformName: 'Donate crypto',
-  displayHandle: 'via NOWPayments',
-  profileUrl: `https://nowpayments.io/donation/${STREAMER_HANDLE}`,
+  displayHandle: 'dono.devarash.icu',
+  profileUrl: 'https://dono.devarash.icu/',
   iconPath: siBitcoin.path,
 };
 
